@@ -9,10 +9,18 @@ type User struct {
 }
 
 func (u *User) Borrow(b *Book) {
+	if b.CheckedOut {
+		return
+	}
+	b.CheckOut()
 	u.BorrowedBooks = append(u.BorrowedBooks, b)
 }
 
 func (u *User) ReturnBook(b *Book) {
+	if !b.CheckedOut {
+		return
+	}
+
 	i := -1
 	for idx, v := range u.BorrowedBooks {
 		if v == b {
@@ -21,6 +29,7 @@ func (u *User) ReturnBook(b *Book) {
 		}
 	}
 	if i != -1 {
+		b.Return()
 		u.BorrowedBooks = append(u.BorrowedBooks[:i], u.BorrowedBooks[i+1:]...)
 	}
 }
