@@ -20,3 +20,7 @@ func (b *Book) Return() {
 func (b Book) String() string {
 	return fmt.Sprintf("%s by %s (ISBN: %s)", b.Title, b.Author, b.ISBN)
 }
+
+func (b Book) Description() string {
+	return fmt.Sprintf("{title: %s, author: %s}", b.Title, b.Author)
+}

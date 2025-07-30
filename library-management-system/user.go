@@ -30,3 +30,7 @@ func (u User) ListBorrowed() {
 		fmt.Println(b.String())
 	}
 }
+
+func (u User) Description() string {
+	return fmt.Sprintf("{name: %s, books borrowed: %d}", u.Name, len(u.BorrowedBooks))
+}
