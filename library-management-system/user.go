@@ -26,6 +26,9 @@ func (u *User) ReturnBook(b *Book) {
 }
 
 func (u User) ListBorrowed() {
+	if len(u.BorrowedBooks) == 0 {
+		fmt.Println("empty")
+	}
 	for _, b := range u.BorrowedBooks {
 		fmt.Println(b.String())
 	}

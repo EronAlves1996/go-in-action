@@ -30,7 +30,9 @@ func main() {
 	library.AddBook(&book2)
 	library.AddUser(&user)
 
-	fmt.Println(book.String())
+	user.ListBorrowed()
 	user.Borrow(&book)
-	fmt.Println(book.String())
+	user.ListBorrowed()
+	user.ReturnBook(&book)
+	user.ListBorrowed()
 }
