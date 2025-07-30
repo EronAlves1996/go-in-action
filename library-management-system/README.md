@@ -20,3 +20,17 @@ In Go, you can choose where your use defined types lives. But we still have some
 primitive types like string (here is primitive), numeric types, boolean, and the reference types.
 For the reference types, there's a difference: you can choose where the header lives, but internaly
 it points to the content of data structure. Slices, maps and channels obeys this contract, as example.
+
+## Questions for further exploration
+
+A thing that I tried, but get some doubt about is the following pattern:
+
+```go
+func (u *User) Borrow(b *Book) {
+  ub := u.Books
+  ub = append(ub, b)
+}
+```
+
+The new slice will be assigned to u.Books directly? Or should I assign
+`ub` to u.Books right after the append operation?
