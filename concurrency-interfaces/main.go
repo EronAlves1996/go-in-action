@@ -7,6 +7,30 @@ import (
 )
 
 func main() {
+	w := WorkerPool{
+		poolNumber: 5,
+		in:         make(chan string, 100),
+		out:        make(chan string, 100),
+	}
+	var wg sync.WaitGroup
+	for range 70 {
+		wg.Add(1)
+		w.Put("aksfhaksfakAAakshajpqwiorwqwr")
+	}
+	w.Start()
+
+	go func() {
+		wg.Wait()
+		w.Stop()
+	}()
+
+	for v := range w.Collect() {
+		wg.Done()
+		fmt.Println(v)
+	}
+}
+
+func concurrentCounter() {
 	var c Counter
 	var wg sync.WaitGroup
 	wg.Add(100)
