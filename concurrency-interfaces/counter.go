@@ -13,6 +13,6 @@ func (c *Counter) Increment() {
 	c.value++
 }
 
-func (c Counter) GetValue() int {
+func (c *Counter) GetValue() int {
 	return c.value
 }
