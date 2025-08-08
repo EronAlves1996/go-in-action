@@ -7,13 +7,12 @@ import (
 )
 
 type Task struct {
-	ID int
-	// Add any other task-related fields here
+	ID   int
+	Task func()
 }
 
 func worker(id int, tasks <-chan Task, wg *sync.WaitGroup, mu *sync.Mutex, sharedCounter *int) {
 	defer wg.Done()
-	// Implement worker logic here
 }
 
 func main() {
@@ -40,7 +39,9 @@ func main() {
 	// Generate tasks
 	for i := 1; i <= maxTasks; i++ {
 		<-rateLimiter // Wait for rate limit
-		taskQueue <- Task{ID: i}
+		taskQueue <- Task{ID: i, Task: func() {
+			time.Sleep(time.Duration(time.Duration(5).Seconds()))
+		}}
 		fmt.Printf("Submitted task %d\n", i)
 	}
 
