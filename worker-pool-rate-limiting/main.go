@@ -18,6 +18,7 @@ func worker(id int,
 	wg *sync.WaitGroup,
 	sharedCounter *int32,
 	rateLimit int,
+	processed []int,
 ) {
 	rateLimiter := time.Tick(time.Second / time.Duration(rateLimit))
 	defer wg.Done()
@@ -29,10 +30,11 @@ func worker(id int,
 		}
 		err := task.Task(task.ID)
 		if err != nil {
-			fmt.Printf("Processed work id %d failed with error %s in worker %d\n", task.ID, err, id)
+			fmt.Printf("Processed work id %d failed with error '%s' in worker %d\n", task.ID, err, id)
 		} else {
 			fmt.Printf("Processed work id %d in worker %d succesfully\n", task.ID, id)
 		}
+		processed[id-1]++
 		atomic.AddInt32(sharedCounter, 1)
 	}
 }
@@ -45,15 +47,16 @@ func main() {
 	)
 
 	var (
-		wg            sync.WaitGroup
-		sharedCounter int32
-		taskQueue     = make(chan Task, maxTasks)
+		wg                 sync.WaitGroup
+		sharedCounter      int32
+		taskQueue          = make(chan Task, maxTasks)
+		processedPerWorker = make([]int, numWorkers)
 	)
 
 	// Start workers
 	wg.Add(numWorkers)
 	for i := 1; i <= numWorkers; i++ {
-		go worker(i, taskQueue, &wg, &sharedCounter, rateLimit)
+		go worker(i, taskQueue, &wg, &sharedCounter, rateLimit, processedPerWorker)
 	}
 
 	// Generate tasks
@@ -72,4 +75,7 @@ func main() {
 	wg.Wait()        // Wait for all workers to finish
 
 	fmt.Printf("All tasks completed. Final counter value: %d\n", sharedCounter)
+	for i := 1; i <= numWorkers; i++ {
+		fmt.Printf("The worker %d processed %d tasks\n", i, processedPerWorker[i-1])
+	}
 }
