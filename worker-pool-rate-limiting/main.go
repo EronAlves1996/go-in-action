@@ -51,7 +51,7 @@ func main() {
 	for i := 1; i <= maxTasks; i++ {
 		<-rateLimiter // Wait for rate limit
 		taskQueue <- Task{ID: i, Task: func() {
-			time.Sleep(time.Duration(time.Duration(5).Seconds()))
+			time.Sleep(time.Second * 1)
 		}}
 		fmt.Printf("Submitted task %d\n", i)
 	}
