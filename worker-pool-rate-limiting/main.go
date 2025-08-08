@@ -16,11 +16,17 @@ type Task struct {
 func worker(id int,
 	tasks <-chan Task,
 	wg *sync.WaitGroup,
-	_ *sync.Mutex,
 	sharedCounter *int32,
+	rateLimit int,
 ) {
+	rateLimiter := time.Tick(time.Second / time.Duration(rateLimit))
 	defer wg.Done()
-	for task := range tasks {
+	for {
+		<-rateLimiter
+		task, ok := <-tasks
+		if !ok {
+			break
+		}
 		err := task.Task(task.ID)
 		if err != nil {
 			fmt.Printf("Processed work id %d failed with error %s in worker %d\n", task.ID, err, id)
@@ -40,21 +46,18 @@ func main() {
 
 	var (
 		wg            sync.WaitGroup
-		mu            sync.Mutex
 		sharedCounter int32
 		taskQueue     = make(chan Task, maxTasks)
-		rateLimiter   = time.Tick(time.Second / time.Duration(rateLimit))
 	)
 
 	// Start workers
 	wg.Add(numWorkers)
 	for i := 1; i <= numWorkers; i++ {
-		go worker(i, taskQueue, &wg, &mu, &sharedCounter)
+		go worker(i, taskQueue, &wg, &sharedCounter, rateLimit)
 	}
 
 	// Generate tasks
 	for i := 1; i <= maxTasks; i++ {
-		<-rateLimiter // Wait for rate limit
 		taskQueue <- Task{ID: i, Task: func(id int) error {
 			time.Sleep(time.Second * 1)
 			if id%2 == 0 {
