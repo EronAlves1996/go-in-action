@@ -22,7 +22,7 @@ func worker(id int,
 	for task := range tasks {
 		task.Task()
 		atomic.AddInt32(sharedCounter, 1)
-		fmt.Println("Processed succesfully")
+		fmt.Printf("Processed work id %d in worker %d succesfully\n", task.ID, id)
 	}
 }
 
