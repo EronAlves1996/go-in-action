@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"sync"
+	"sync/atomic"
 	"time"
 )
 
@@ -11,8 +12,18 @@ type Task struct {
 	Task func()
 }
 
-func worker(id int, tasks <-chan Task, wg *sync.WaitGroup, mu *sync.Mutex, sharedCounter *int) {
+func worker(id int,
+	tasks <-chan Task,
+	wg *sync.WaitGroup,
+	_ *sync.Mutex,
+	sharedCounter *int32,
+) {
 	defer wg.Done()
+	for task := range tasks {
+		task.Task()
+		atomic.AddInt32(sharedCounter, 1)
+		fmt.Println("Processed succesfully")
+	}
 }
 
 func main() {
@@ -25,7 +36,7 @@ func main() {
 	var (
 		wg            sync.WaitGroup
 		mu            sync.Mutex
-		sharedCounter int
+		sharedCounter int32
 		taskQueue     = make(chan Task, maxTasks)
 		rateLimiter   = time.Tick(time.Second / time.Duration(rateLimit))
 	)
