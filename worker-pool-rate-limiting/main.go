@@ -1,6 +1,7 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"sync"
 	"sync/atomic"
@@ -9,7 +10,7 @@ import (
 
 type Task struct {
 	ID   int
-	Task func()
+	Task func(int) error
 }
 
 func worker(id int,
@@ -20,9 +21,13 @@ func worker(id int,
 ) {
 	defer wg.Done()
 	for task := range tasks {
-		task.Task()
+		err := task.Task(task.ID)
+		if err != nil {
+			fmt.Printf("Processed work id %d failed with error %s in worker %d\n", task.ID, err, id)
+		} else {
+			fmt.Printf("Processed work id %d in worker %d succesfully\n", task.ID, id)
+		}
 		atomic.AddInt32(sharedCounter, 1)
-		fmt.Printf("Processed work id %d in worker %d succesfully\n", task.ID, id)
 	}
 }
 
@@ -50,8 +55,12 @@ func main() {
 	// Generate tasks
 	for i := 1; i <= maxTasks; i++ {
 		<-rateLimiter // Wait for rate limit
-		taskQueue <- Task{ID: i, Task: func() {
+		taskQueue <- Task{ID: i, Task: func(id int) error {
 			time.Sleep(time.Second * 1)
+			if id%2 == 0 {
+				return errors.New("an error ocurred")
+			}
+			return nil
 		}}
 		fmt.Printf("Submitted task %d\n", i)
 	}
