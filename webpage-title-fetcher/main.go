@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"regexp"
 	"sync"
@@ -56,8 +55,16 @@ func worker(wg *sync.WaitGroup, jobs <-chan Job, results chan<- Result) {
 	defer wg.Done()
 	// TODO: Implement the worker loop.
 	// Use a for-range loop on the `jobs` channel.
-	// Call fetchTitle for each job.
-	// Send the result (with the URL and title or error) back to the `results` channel.
+	for j := range jobs {
+		// Call fetchTitle for each job.
+		r, err := fetchTitle(j.URL)
+		// Send the result (with the URL and title or error) back to the `results` channel.
+		results <- Result{
+			URL:   j.URL,
+			Title: r,
+			Err:   err,
+		}
+	}
 }
 
 func main() {
@@ -67,6 +74,7 @@ func main() {
 		"https://github.com",
 		"https://stackoverflow.com",
 		"https://example.com",
+		"http://localhost",
 		"https://gobyexample.com/worker-pools", // Bonus!
 	}
 
