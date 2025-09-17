@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"regexp"
+	"strings"
 	"sync"
 )
 
@@ -22,6 +23,9 @@ type Result struct {
 // Fetches the HTML body of a URL and extracts the title tag.
 // Returns an error if any step fails.
 func fetchTitle(url string) (string, error) {
+	if strings.Contains(url, "panic") {
+		panic("should panic")
+	}
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -52,6 +56,11 @@ func fetchTitle(url string) (string, error) {
 // 2. It processes the job (calls `fetchTitle`).
 // 3. It sends the Result to the `results` channel.
 func worker(wg *sync.WaitGroup, jobs <-chan Job, results chan<- Result) {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("Recovered in worker", r)
+		}
+	}()
 	defer wg.Done()
 	// TODO: Implement the worker loop.
 	// Use a for-range loop on the `jobs` channel.
@@ -75,6 +84,7 @@ func main() {
 		"https://stackoverflow.com",
 		"https://example.com",
 		"http://localhost",
+		"http://panic",
 		"https://gobyexample.com/worker-pools", // Bonus!
 	}
 
