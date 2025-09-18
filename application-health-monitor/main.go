@@ -22,14 +22,14 @@ var StatusName = [...]string{"OK", "ERROR", "WARNING"}
 
 type HealthStatus struct {
 	Service   string
-	Status    Status
+	Status    string
 	Timestamp time.Time
 }
 
 func checkHealth(serviceName string) HealthStatus {
 	return HealthStatus{
 		Service:   serviceName,
-		Status:    Status(rand.Intn(2)),
+		Status:    StatusName[Status(rand.Intn(2))],
 		Timestamp: time.Now(),
 	}
 }
@@ -50,7 +50,7 @@ func main() {
 	}
 
 	for _, v := range results {
-		log.Printf("Checked %s: %s\n", v.Service, StatusName[v.Status])
+		log.Printf("Checked %s: %s\n", v.Service, v.Status)
 		b, err := json.Marshal(v)
 		if err != nil {
 			log.Printf("Error while trying to marshal: %s\n", err)
