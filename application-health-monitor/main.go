@@ -46,12 +46,12 @@ func main() {
 
 	results := []HealthStatus{}
 	for _, v := range services {
-		results = append(results, checkHealth(v))
-	}
+		ch := checkHealth(v)
+		results = append(results, ch)
 
-	for _, v := range results {
-		log.Printf("Checked %s: %s\n", v.Service, v.Status)
-		b, err := json.Marshal(v)
+		log.Printf("Checked %s: %s\n", ch.Service, ch.Status)
+
+		b, err := json.Marshal(ch)
 		if err != nil {
 			log.Printf("Error while trying to marshal: %s\n", err)
 		} else {
