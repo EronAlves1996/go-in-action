@@ -1,6 +1,9 @@
 package main
 
-import "time"
+import (
+	"math/rand"
+	"time"
+)
 
 type Status int
 
@@ -16,4 +19,12 @@ type HealthStatus struct {
 	Service   string
 	Status    Status
 	Timestamp time.Time
+}
+
+func checkHealth(serviceName string) HealthStatus {
+	return HealthStatus{
+		Service:   serviceName,
+		Status:    Status(rand.Intn(2)),
+		Timestamp: time.Now(),
+	}
 }
