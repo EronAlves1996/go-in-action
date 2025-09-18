@@ -35,7 +35,7 @@ func checkHealth(serviceName string) HealthStatus {
 }
 
 func main() {
-	file, err := os.OpenFile("health.log", os.O_CREATE|os.O_APPEND, 0o666)
+	file, err := os.OpenFile("health.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o666)
 	if err != nil {
 		log.Fatalln(err)
 	}
@@ -58,4 +58,10 @@ func main() {
 			fileLogger.Println(string(b))
 		}
 	}
+
+	b, err := json.MarshalIndent(results, "", "  ")
+	if err != nil {
+		log.Fatalf("Error while trying to marshal results%s\n", err)
+	}
+	log.Println(string(b))
 }
