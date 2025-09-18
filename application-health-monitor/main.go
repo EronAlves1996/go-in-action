@@ -1,9 +1,13 @@
 package main
 
 import (
+	"log"
 	"math/rand"
+	"os"
 	"time"
 )
+
+var fileLogger *log.Logger
 
 type Status int
 
@@ -27,4 +31,14 @@ func checkHealth(serviceName string) HealthStatus {
 		Status:    Status(rand.Intn(2)),
 		Timestamp: time.Now(),
 	}
+}
+
+func main() {
+	file, err := os.OpenFile("health.log", os.O_CREATE|os.O_APPEND, 0o666)
+	if err != nil {
+		log.Fatalf("%d", err)
+	}
+	defer file.Close()
+
+	fileLogger = log.New(file, "HEALTH: ", log.LstdFlags)
 }
